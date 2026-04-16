@@ -5,11 +5,14 @@ import edu.cmu.bookstore.model.BookDetailsResponse;
 import edu.cmu.bookstore.model.BookResponse;
 import edu.cmu.bookstore.model.request.CreateBookRequest;
 import edu.cmu.bookstore.model.request.UpdateBookRequest;
+import edu.cmu.bookstore.model.RelatedBook;
 import edu.cmu.bookstore.service.BookService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * REST controller responsible for handling all book-related HTTP endpoints.
@@ -119,5 +122,22 @@ public class BookController {
 
         // Return detailed book information with HTTP 200 OK.
         return ResponseEntity.ok(BookDetailsResponse.fromBook(book));
+    }
+
+    /**
+     * Retrieves a list of related books recommended by the external engine.
+     *
+     * @param isbn ISBN of the book
+     * @return HTTP response with a list of related books
+     */
+    @GetMapping("/{isbn}/related-books")
+    public ResponseEntity<List<RelatedBook>> getRelatedBooks(@PathVariable("isbn") String isbn) {
+        List<RelatedBook> relatedBooks = bookService.getRelatedBooks(isbn);
+
+        if (relatedBooks.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(relatedBooks);
     }
 }

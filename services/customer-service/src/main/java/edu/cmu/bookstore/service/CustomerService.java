@@ -33,15 +33,23 @@ public class CustomerService {
     private final CustomerValidator customerValidator;
 
     /**
+     * Service used to publish customer registration events to Kafka.
+     */
+    private final KafkaProducerService kafkaProducerService;
+
+    /**
      * Creates a service instance with required dependencies.
      *
      * @param customerRepository repository used for database operations
      * @param customerValidator validator used for request and parameter validation
+     * @param kafkaProducerService service used to publish Kafka events
      */
     public CustomerService(CustomerRepository customerRepository,
-                           CustomerValidator customerValidator) {
+                           CustomerValidator customerValidator,
+                           KafkaProducerService kafkaProducerService) {
         this.customerRepository = customerRepository;
         this.customerValidator = customerValidator;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     /**
@@ -81,6 +89,9 @@ public class CustomerService {
         // Insert the customer into the repository and capture the generated ID.
         long generatedId = customerRepository.insertCustomer(customer);
         customer.setId(generatedId);
+
+        // Publish the "Customer Registered" domain event to Kafka.
+        kafkaProducerService.publishCustomerRegisteredEvent(customer);
 
         // Return the fully constructed customer object.
         return customer;

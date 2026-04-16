@@ -241,6 +241,28 @@ public class WebBffController {
     }
 
     /**
+     * Retrieves a list of related books through the web BFF.
+     *
+     * @param isbn ISBN of the book for which to find recommendations
+     * @param clientType value of the X-Client-Type header
+     * @param authorization value of the Authorization header
+     * @return list of related books from the backend service
+     */
+    @GetMapping("/books/{isbn}/related-books")
+    public ResponseEntity<String> getRelatedBooks(@PathVariable String isbn,
+                                                  @RequestHeader(value = "X-Client-Type", required = false) String clientType,
+                                                  @RequestHeader(value = "Authorization", required = false) String authorization) {
+        // Ensure the request is coming from a valid web client.
+        requireWebClient(clientType);
+
+        // Validate the bearer token and its required claims.
+        jwtUtil.validateAuthorizationHeader(authorization);
+
+        // Forward the request to the backend book service.
+        return forwardingClient.get("/books/" + encodePathSegment(isbn) + "/related-books");
+    }
+
+    /**
      * Validates that the X-Client-Type header represents a supported web client.
      *
      * Accepted value:

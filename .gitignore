@@ -5,3 +5,4 @@ target/
 *.log
 .env
 aws/*.env
+A3_recommendation_service.md

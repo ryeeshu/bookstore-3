@@ -29,10 +29,16 @@ public class ForwardingClient {
     private final RestTemplate restTemplate;
 
     /**
-     * Base URL of the backend service, injected from application configuration.
+     * Base URL of the Book service, injected from application configuration.
      */
-    @Value("${backend.base-url}")
-    private String backendBaseUrl;
+    @Value("${book-service.url:http://localhost:3000}")
+    private String bookServiceUrl;
+
+    /**
+     * Base URL of the Customer service, injected from application configuration.
+     */
+    @Value("${customer-service.url:http://localhost:3000}")
+    private String customerServiceUrl;
 
     /**
      * Creates a forwarding client with the required RestTemplate dependency.
@@ -94,8 +100,14 @@ public class ForwardingClient {
      * @return response entity containing backend status, selected headers, and body
      */
     private ResponseEntity<String> exchange(String path, HttpMethod method, String body) {
-        // Construct the target URI by combining the backend base URL with the relative path.
-        URI uri = URI.create(backendBaseUrl + path);
+        // Determine which backend service to route to based on the relative path.
+        String baseUrl = bookServiceUrl;
+        if (path != null && path.startsWith("/customers")) {
+            baseUrl = customerServiceUrl;
+        }
+
+        // Construct the target URI by combining the appropriate backend base URL with the relative path.
+        URI uri = URI.create(baseUrl + path);
 
         // Prepare headers for the outbound request.
         HttpHeaders headers = new HttpHeaders();
