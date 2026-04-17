@@ -9,6 +9,10 @@
 -- multiple times without failing when the tables already exist.
 -- -----------------------------------------------------------------------------
 
+-- Create and populate the Books Database
+CREATE DATABASE IF NOT EXISTS book_db;
+USE book_db;
+
 -- Create the books table used to store all book-related information.
 CREATE TABLE IF NOT EXISTS books (
     isbn VARCHAR(32) PRIMARY KEY,          -- Unique ISBN identifier for each book
@@ -20,6 +24,10 @@ CREATE TABLE IF NOT EXISTS books (
     quantity INT NOT NULL,                 -- Available inventory quantity
     summary TEXT NULL                      -- Optional LLM-generated summary
 );
+
+-- Create and populate the Customers Database
+CREATE DATABASE IF NOT EXISTS customer_db;
+USE customer_db;
 
 -- Create the customers table used to store customer information.
 CREATE TABLE IF NOT EXISTS customers (
