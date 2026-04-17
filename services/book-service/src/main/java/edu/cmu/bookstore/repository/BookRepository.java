@@ -96,12 +96,27 @@ public class BookRepository {
     }
 
     public List<Book> findAll() {
-        String sql = """
-                SELECT isbn, title, author, description, genre, price, quantity, summary
-                FROM books
-                ORDER BY title
-                """;
+        String sql = "SELECT * FROM books";
 
-        return jdbcTemplate.query(sql, bookRowMapper);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Book book = new Book();
+
+            book.setIsbn(rs.getString("isbn"));
+            book.setTitle(rs.getString("title"));
+            book.setAuthor(rs.getString("author"));
+            book.setDescription(rs.getString("description"));
+            book.setGenre(rs.getString("genre"));
+            book.setPrice(rs.getBigDecimal("price"));
+            book.setQuantity(rs.getInt("quantity"));
+
+            try {
+                book.setSummary(rs.getString("summary"));
+            } catch (Exception ignored) {
+                book.setSummary(null);
+            }
+
+            return book;
+        });
     }
+
 }
