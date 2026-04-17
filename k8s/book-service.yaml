@@ -4,7 +4,7 @@ metadata:
   name: book-service
   namespace: bookstore-ns
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: book-service
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: book-service
-        image: <your-registry>/book-service:latest
+        image: ryeeshu/book-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -23,9 +23,21 @@ spec:
         - name: SERVER_PORT
           value: "3000"
         - name: DB_HOST
-          value: "bookstore-db.xxxxx.us-east-1.rds.amazonaws.com"
+          value: "bookstore-db-dev.cluster-ct40ymgiu3r4.us-east-1.rds.amazonaws.com"
         - name: DB_NAME
           value: "book_db"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_USER
+          value: "books_svc"
+        - name: DB_PASSWORD
+          value: "awsadmin"
+        - name: RECOMMENDATION_SERVICE_URL
+          value: "http://52.73.13.84"
+        - name: RECOMMENDATION_TIMEOUT_MS
+          value: "3000"
+        - name: CIRCUIT_BREAKER_OPEN_MS
+          value: "60000"
         livenessProbe:
           httpGet:
             path: /status

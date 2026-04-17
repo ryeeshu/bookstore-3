@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: mobile-bff
-        image: <your-registry>/mobile-bff:latest
+        image: ryeeshu/mobile-bff:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -25,6 +25,11 @@ spec:
             port: 3000
           initialDelaySeconds: 30
           periodSeconds: 10
+        env:
+        - name: BOOK_SERVICE_URL
+          value: "http://book-service"
+        - name: CUSTOMER_SERVICE_URL
+          value: "http://customer-service"
 ---
 apiVersion: v1
 kind: Service
