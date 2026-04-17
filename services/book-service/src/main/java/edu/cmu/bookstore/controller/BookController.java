@@ -42,11 +42,8 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BookResponse>> getAllBooks() {
-        List<BookResponse> books = bookService.getAllBooks()
-                .stream()
-                .map(BookResponse::fromBook)
-                .toList();
+    public ResponseEntity<List<Book>> getAllBooks() {
+        List<Book> books = bookService.getAllBooks();
         return ResponseEntity.ok(books);
     }
 
