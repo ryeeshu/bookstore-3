@@ -26,6 +26,8 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 10
         env:
+        - name: SERVER_PORT
+          value: "3000"
         - name: BOOK_SERVICE_URL
           value: "http://book-service"
         - name: CUSTOMER_SERVICE_URL

@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * REST controller for the web Backend For Frontend (BFF).
+ *
+ * This controller validates the Authorization header and the presence
+ * of the X-Client-Type header, then forwards requests to downstream services.
+ */
 @RestController
 public class WebBffController {
 
@@ -26,8 +32,9 @@ public class WebBffController {
             @RequestHeader(value = "X-Client-Type", required = false) String clientType,
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestBody(required = false) String body) {
-        requireWebClient(clientType);
+
         jwtUtil.validateAuthorizationHeader(authorization);
+        requireClientTypeHeader(clientType);
         return forwardingClient.post("/books", body);
     }
 
@@ -37,8 +44,9 @@ public class WebBffController {
             @RequestHeader(value = "X-Client-Type", required = false) String clientType,
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestBody(required = false) String body) {
-        requireWebClient(clientType);
+
         jwtUtil.validateAuthorizationHeader(authorization);
+        requireClientTypeHeader(clientType);
         return forwardingClient.put("/books/" + encodePathSegment(isbn), body);
     }
 
@@ -46,8 +54,9 @@ public class WebBffController {
     public ResponseEntity getAllBooks(
             @RequestHeader(value = "X-Client-Type", required = false) String clientType,
             @RequestHeader(value = "Authorization", required = false) String authorization) {
-        requireWebClient(clientType);
+
         jwtUtil.validateAuthorizationHeader(authorization);
+        requireClientTypeHeader(clientType);
         return forwardingClient.get("/books");
     }
 
@@ -56,8 +65,9 @@ public class WebBffController {
             @PathVariable String isbn,
             @RequestHeader(value = "X-Client-Type", required = false) String clientType,
             @RequestHeader(value = "Authorization", required = false) String authorization) {
-        requireWebClient(clientType);
+
         jwtUtil.validateAuthorizationHeader(authorization);
+        requireClientTypeHeader(clientType);
         return forwardingClient.get("/books/" + encodePathSegment(isbn));
     }
 
@@ -66,8 +76,9 @@ public class WebBffController {
             @PathVariable String isbn,
             @RequestHeader(value = "X-Client-Type", required = false) String clientType,
             @RequestHeader(value = "Authorization", required = false) String authorization) {
-        requireWebClient(clientType);
+
         jwtUtil.validateAuthorizationHeader(authorization);
+        requireClientTypeHeader(clientType);
         return forwardingClient.get("/books/isbn/" + encodePathSegment(isbn));
     }
 
@@ -76,8 +87,9 @@ public class WebBffController {
             @RequestHeader(value = "X-Client-Type", required = false) String clientType,
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestBody(required = false) String body) {
-        requireWebClient(clientType);
+
         jwtUtil.validateAuthorizationHeader(authorization);
+        requireClientTypeHeader(clientType);
         return forwardingClient.post("/customers", body);
     }
 
@@ -86,8 +98,9 @@ public class WebBffController {
             @PathVariable String id,
             @RequestHeader(value = "X-Client-Type", required = false) String clientType,
             @RequestHeader(value = "Authorization", required = false) String authorization) {
-        requireWebClient(clientType);
+
         jwtUtil.validateAuthorizationHeader(authorization);
+        requireClientTypeHeader(clientType);
         return forwardingClient.get("/customers/" + encodePathSegment(id));
     }
 
@@ -96,8 +109,9 @@ public class WebBffController {
             HttpServletRequest request,
             @RequestHeader(value = "X-Client-Type", required = false) String clientType,
             @RequestHeader(value = "Authorization", required = false) String authorization) {
-        requireWebClient(clientType);
+
         jwtUtil.validateAuthorizationHeader(authorization);
+        requireClientTypeHeader(clientType);
 
         String rawQuery = request.getQueryString();
         if (rawQuery == null || rawQuery.isBlank()) {
@@ -112,19 +126,15 @@ public class WebBffController {
             @PathVariable String isbn,
             @RequestHeader(value = "X-Client-Type", required = false) String clientType,
             @RequestHeader(value = "Authorization", required = false) String authorization) {
-        requireWebClient(clientType);
+
         jwtUtil.validateAuthorizationHeader(authorization);
+        requireClientTypeHeader(clientType);
         return forwardingClient.get("/books/" + encodePathSegment(isbn) + "/related-books");
     }
 
-    private void requireWebClient(String clientType) {
+    private void requireClientTypeHeader(String clientType) {
         if (clientType == null || clientType.trim().isEmpty()) {
             throw new BadRequestException("Missing X-Client-Type header.");
-        }
-
-        String normalized = clientType.trim();
-        if (!normalized.equalsIgnoreCase("Web")) {
-            throw new BadRequestException("Invalid X-Client-Type header.");
         }
     }
 

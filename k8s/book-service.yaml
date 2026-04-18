@@ -33,7 +33,7 @@ spec:
         - name: DB_PASSWORD
           value: "awsadmin"
         - name: RECOMMENDATION_SERVICE_URL
-          value: "http://52.73.13.84"
+          value: "http://100.51.187.149"
         - name: RECOMMENDATION_TIMEOUT_MS
           value: "3000"
         - name: CIRCUIT_BREAKER_OPEN_MS

@@ -32,7 +32,7 @@ public class BookService {
     private final CircuitBreaker circuitBreaker;
     private final RestTemplate recommendationRestTemplate;
 
-    @Value("${app.recommendation.url:http://52.73.13.84}")
+    @Value("${RECOMMENDATION_SERVICE_URL:http://100.51.187.149}")
     private String recommendationUrl;
 
     public BookService(BookRepository bookRepository,
@@ -137,9 +137,15 @@ public class BookService {
     public List<RelatedBook> getRelatedBooks(String isbn) {
         bookValidator.validatePathIsbn(isbn);
 
+        CircuitBreaker.State stateBeforeCheck = circuitBreaker.getState();
+
         if (!circuitBreaker.isCallAllowed()) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Circuit is open");
         }
+
+        boolean retryAfterOpenWindow =
+                stateBeforeCheck == CircuitBreaker.State.OPEN &&
+                circuitBreaker.getState() == CircuitBreaker.State.HALF_OPEN;
 
         String url = String.format("%s/recommended-titles/isbn/%s", recommendationUrl, isbn.trim());
 
@@ -155,6 +161,11 @@ public class BookService {
             return Arrays.asList(results);
         } catch (ResourceAccessException e) {
             circuitBreaker.recordFailure();
+
+            if (retryAfterOpenWindow) {
+                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Circuit is open");
+            }
+
             throw new ResponseStatusException(HttpStatus.GATEWAY_TIMEOUT, "Call to recommendation service timed out.");
         } catch (Exception e) {
             circuitBreaker.recordFailure();
