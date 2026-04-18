@@ -19,12 +19,19 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
         livenessProbe:
           httpGet:
             path: /status
             port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          failureThreshold: 5
         env:
         - name: SERVER_PORT
           value: "3000"

@@ -8,6 +8,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -54,12 +55,18 @@ public class GlobalExceptionHandler {
                 .body(new ApiMessage("Invalid request parameter."));
     }
 
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ApiMessage> handleResponseStatus(ResponseStatusException ex) {
+        String reason = ex.getReason() == null ? ex.getStatusCode().toString() : ex.getReason();
+        return ResponseEntity
+                .status(ex.getStatusCode())
+                .body(new ApiMessage(reason));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiMessage> handleGeneric(Exception ex) {
-        String msg = ex.getClass().getSimpleName() + ": " +
-                (ex.getMessage() == null ? "no message" : ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiMessage(msg));
+                .body(new ApiMessage("Internal server error."));
     }
 }
