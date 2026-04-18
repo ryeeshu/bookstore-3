@@ -7,20 +7,25 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 /**
- * Service responsible for consuming customer registration events from Kafka.
- *
- * When a "Customer Registered" message is received, it triggers the
- * welcome email flow through the {@link EmailService}.
+ * Kafka consumer service responsible for processing customer-related events.
+ * It currently listens for customer registration events and triggers
+ * the welcome email workflow.
  */
 @Service
 public class KafkaConsumerService {
 
+    /**
+     * Logger used for tracking consumed Kafka events.
+     */
     private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
 
+    /**
+     * Service used to send emails after processing Kafka events.
+     */
     private final EmailService emailService;
 
     /**
-     * Constructs the consumer service with its required email logic dependency.
+     * Creates the Kafka consumer service with the required email service dependency.
      *
      * @param emailService service used to send welcome emails
      */
@@ -29,20 +34,14 @@ public class KafkaConsumerService {
     }
 
     /**
-     * Listener method that processes messages from the customer event topic.
+     * Listens for customer registration events from the configured Kafka topic.
+     * Once a customer event is received, a welcome email is sent to that customer.
      *
-     * The method uses Spring Kafka's @KafkaListener to automatically
-     * deserialize incoming JSON messages into {@link Customer} objects.
-     *
-     * @param customer customer details received in the Kafka message
+     * @param customer deserialized customer payload received from Kafka
      */
     @KafkaListener(topics = "${app.kafka.topic:rdhurand.customer.evt}", groupId = "crm-group")
     public void listenCustomerRegistered(Customer customer) {
         logger.info("Received customer registration event for: {}", customer.getUserId());
-        try {
-            emailService.sendWelcomeEmail(customer);
-        } catch (Exception e) {
-            logger.error("Error processing customer registration event", e);
-        }
+        emailService.sendWelcomeEmail(customer);
     }
 }
