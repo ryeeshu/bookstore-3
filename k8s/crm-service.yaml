@@ -33,7 +33,7 @@ spec:
         - name: SMTP_USER
           value: "ryeeshudhurandhar@gmail.com"
         - name: SMTP_PASS
-          value: "yjse mnpr uput ktva"
+          value: "abif codj hjzm lgwp"
         - name: ANDREW_ID
           value: "rdhurand"
         # SMTP credentials would typically be in a Secret, but for A3 we use env or properties
